@@ -1,5 +1,5 @@
 import React from 'react';
-import {Link} from "react-router-dom";
+import {Link, Switch, Route} from "react-router-dom";
 
 function Header(props) {
 
@@ -7,13 +7,23 @@ function Header(props) {
         <header className="header page__header">
             <div className="header__logo"></div>
             <div className="header__auth">
-                <Link to="/sign-up">Зарегистрироваться</Link>
-                <Link to="/sign-in">Войти</Link>
+                <Switch>
+                    <Route exact path="/sign-up">
+                        {props.isHeaderAuth && <Link onClick={props.handleHeaderAuthClick} to="/sign-in">Войти</Link>}
+                    </Route>
+                    <Route exact path="/sign-in">
+                        {!props.isHeaderAuth &&
+                        <Link onClick={props.handleHeaderAuthClick} to="/sign-up">Зарегистрироваться</Link>}
+                    </Route>
+                    <Route exact path="/main">
+                        {props.isLoggedIn && (<span className="header__auth-logged">{props.email} <Link to="/sign-in"
+                                                                                                        onClick={props.handleLogoff}>Выйти</Link> </span>)}
+                    </Route>
+                </Switch>
             </div>
 
         </header>
     )
-
 }
 
 export default Header;

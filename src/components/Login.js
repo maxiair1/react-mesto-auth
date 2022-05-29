@@ -4,10 +4,9 @@ import React from "react";
 function Login(props) {
 
     const [formParams, setFormParams] = React.useState({
-        username: '',
+        email: '',
         password: '',
     });
-    const [message, setMessage] = React.useState('');
 
     const handleChange = (e) => {
         const {name, value} = e.target;
@@ -19,13 +18,12 @@ function Login(props) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!formParams.username || !formParams.password) {
+        if (!formParams.email || !formParams.password) {
+            console.log('loginErr:', {email: formParams.email, password: formParams.password})
             return;
         }
-        props.handleLogin({username: formParams.username, password: formParams.password})
-            .catch(err => {
-                setMessage(err.message);
-            });
+        props.handleLogin({email: formParams.email, password: formParams.password})
+        setFormParams({email: '', password: ''})
     }
 
 
@@ -33,8 +31,10 @@ function Login(props) {
         <div className="authorize">
             <form onSubmit={handleSubmit} className="authorize__form">
                 <h2 className="authorize__title">Вход</h2>
-                <input placeholder="Email" type="email" className="authorize__input"/>
-                <input placeholder="Пароль" type="text" className="authorize__input"/>
+                <input placeholder="Email" name="email" type="email" className="authorize__input"
+                       value={formParams.email || ""} onChange={handleChange} required/>
+                <input placeholder="Пароль" name="password" type="text" className="authorize__input"
+                       value={formParams.password || ""} onChange={handleChange} required/>
                 <button type="submit" className="authorize__button-submit">Войти</button>
             </form>
         </div>
