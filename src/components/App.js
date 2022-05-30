@@ -28,41 +28,38 @@ function App() {
     const [isCardsLoading, setIsCardsLoading] = useState(false);
     const [isHeaderAuth, setIsHeaderAuth] = React.useState(false);
     const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-    const [isRegister, setIsRegister] = React.useState(false);
-    const [isRegisterFail, setIsRegisterFail] = React.useState(false);
-    const [isLoggedFail, setIsLoggedFail] = React.useState(false);
     const [userEmail, setUserEmail] = React.useState('');
-
+    const [infoToolTip, setInfoToolTip] = React.useState({isOpen: false, status: false, text:''});
 
     useEffect(() => {
         tokenCheck();
-        setIsProfileLoading(true);
-        api.getProfile()
-            .then(res => {
-                setCurrentUser(res);
-            })
-            .catch((err) => console.log('Ошибка загрузки профиля: ', err))
-            .finally(() => setIsProfileLoading(false));
-
-        api.getCards()
-            .then(res => {
-                setCards(res.map(card => {
-                    return ({
-                        _id: card._id,
-                        name: card.name,
-                        link: card.link,
-                        likes: card.likes,
-                        owner: card.owner
-                    })
-                }))
-            })
-            .catch((err) => console.log('Ошибка загрузки карточек: ', err))
-            .finally(() => setIsCardsLoading(false));
     }, [])
 
     useEffect(() => {
         if (isLoggedIn) {
             history.push("/main");
+            setIsProfileLoading(true);
+            api.getProfile()
+                .then(res => {
+                    setCurrentUser(res);
+                })
+                .catch((err) => console.log('Ошибка загрузки профиля: ', err))
+                .finally(() => setIsProfileLoading(false));
+
+            api.getCards()
+                .then(res => {
+                    setCards(res.map(card => {
+                        return ({
+                            _id: card._id,
+                            name: card.name,
+                            link: card.link,
+                            likes: card.likes,
+                            owner: card.owner
+                        })
+                    }))
+                })
+                .catch((err) => console.log('Ошибка загрузки карточек: ', err))
+                .finally(() => setIsCardsLoading(false));
         }
     }, [isLoggedIn]);
 
@@ -79,13 +76,11 @@ function App() {
                 }
             )
             .catch(res => {
-                setIsLoggedFail(true);
+                setInfoToolTip({isOpen: true, status: false, text:'Что-то пошло не так!Попробуйте ещё раз.'});
                 if (res.status === 400) {
                     console.log('400 - не передано одно из полей')
-
                 } else if (res.status === 401) {
                     console.log('401 - не корректно введен email или пароль')
-
                 } else
                     console.log('login fail:', res.statusText)
             })
@@ -94,13 +89,13 @@ function App() {
     function handleRegistration(user) {
         register(user.email, user.password)
             .then(res => {
-                    setIsRegister(true);
-                    setIsHeaderAuth(false);
+                setInfoToolTip({isOpen: true, status: true, text:'Вы успешно зарегистрировались!'});
+                setIsHeaderAuth(false);
                     history.push("/sign-in");
                 }
             )
             .catch(res => {
-                setIsRegisterFail(true);
+                setInfoToolTip({isOpen: true, status: false, text:'Что-то пошло не так!Попробуйте ещё раз.'});
                 if (res.status === 400) {
                     console.log('400 - некорректно заполнено одно из полей')
                 } else
@@ -148,16 +143,13 @@ function App() {
         setIsOpen(true)
     }
 
-
     function closeAllPopups() {
         setIsOpen(false);
         setIsAddPlacePopupOpen(false);
         setIsEditProfilePopupOpen(false);
         setIsEditAvatarPopupOpen(false);
         setSelectedCard({name: '', link: ''});
-        setIsRegister(false);
-        setIsRegisterFail(false);
-        setIsLoggedFail(false);
+        setInfoToolTip({isOpen: false, status: false, text:''})
     }
 
     function handleUpdateUser(user) {
@@ -217,20 +209,16 @@ function App() {
                         isLoggedIn={isLoggedIn}
                         handleLogoff={handleLogoff}
                         email={userEmail}/>
-
                     <Switch>
                         <Route path="/sign-in">
-
                             <Login handleLogin={handleLogin}/>
                         </Route>
                         <Route path="/sign-up">
-
                             <Register
                                 handleHeaderAuthClick={handleHeaderAuthClick}
                                 handleRegistration={handleRegistration}
                             />
                         </Route>
-
                         <Route exact path="/main">
                             <Main
                                 onEditAvatar={handleEditAvatarClick}
@@ -244,28 +232,13 @@ function App() {
                                 cards={cards}
                             />
                             <Footer/>
-
                         </Route>
                         <Route>
                             {isLoggedIn ? <Redirect to="/main"/> : <Redirect to="/sign-in"/>}
                         </Route>
                     </Switch>
-                    {isRegister && <InfoTooltip
-                        infoMessage="Вы успешно зарегистрировались!"
-                        infoIcon={'success'}
-                        isOpen={isRegister}
-                        onClose={closeAllPopups}
-                    />}
-                    {isRegisterFail && <InfoTooltip
-                        infoMessage="Что-то пошло не так!Попробуйте ещё раз."
-                        infoIcon={'fail'}
-                        isOpen={isRegisterFail}
-                        onClose={closeAllPopups}
-                    />}
-                    {isLoggedFail && <InfoTooltip
-                        infoMessage="Что-то пошло не так!Попробуйте ещё раз."
-                        infoIcon={'fail'}
-                        isOpen={isLoggedFail}
+                    {infoToolTip.isOpen && <InfoTooltip
+                        info={infoToolTip}
                         onClose={closeAllPopups}
                     />}
                     {isEditProfilePopupOpen &&
@@ -279,7 +252,6 @@ function App() {
                     <EditAvatarPopup isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups}
                                      onUpdateAvatar={handleUpdateAvatar}/>}
                     <ImagePopup card={selectedCard} onClose={closeAllPopups} isOpen={isOpen}/>
-
                 </div>
             </div>
         </CurrentUserContext.Provider>

@@ -1,5 +1,4 @@
 
-
 class Api {
   constructor(settings) {
     this.settings = settings;
@@ -12,8 +11,7 @@ class Api {
       body:props.body
     })
     .then( res => res.ok ? res.json() : Promise.reject(`Error: ${res.status}`))
-
-  }
+}
 
   getProfile() {
     return  this._makeNewFetch(`${this.settings.baseUrl}/users/me`, {
@@ -55,10 +53,8 @@ class Api {
     return this._makeNewFetch(`${this.settings.baseUrl}/cards/${id}`, {
       method: "DELETE",
       headers: this.settings.headers,
-
     })
-
-  }
+}
 
   changeLikeCardStatus(id,isLiked){
     if(!isLiked){
@@ -75,7 +71,6 @@ class Api {
       })
     }
   }
-
 }
 
 export const api = new Api({

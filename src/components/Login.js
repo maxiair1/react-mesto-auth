@@ -1,6 +1,5 @@
 import React from "react";
 
-
 function Login(props) {
 
     const [formParams, setFormParams] = React.useState({
@@ -19,13 +18,11 @@ function Login(props) {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!formParams.email || !formParams.password) {
-            console.log('loginErr:', {email: formParams.email, password: formParams.password})
             return;
         }
         props.handleLogin({email: formParams.email, password: formParams.password})
         setFormParams({email: '', password: ''})
     }
-
 
     return (
         <div className="authorize">
@@ -33,7 +30,7 @@ function Login(props) {
                 <h2 className="authorize__title">Вход</h2>
                 <input placeholder="Email" name="email" type="email" className="authorize__input"
                        value={formParams.email || ""} onChange={handleChange} required/>
-                <input placeholder="Пароль" name="password" type="text" className="authorize__input"
+                <input placeholder="Пароль" name="password" type="password" className="authorize__input"
                        value={formParams.password || ""} onChange={handleChange} required/>
                 <button type="submit" className="authorize__button-submit">Войти</button>
             </form>
